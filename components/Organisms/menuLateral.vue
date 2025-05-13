@@ -21,7 +21,11 @@ const toggleMobileMenu = () => {
 
 
 // Caminho atual (simulado - em um projeto real, use useRoute do vue-router)
-const currentPath = ref('/');
+const route = useRoute();
+const isActive = (path: string) => {
+    return route.path === path;
+};
+
 
 // Itens de navegação principal
 const mainNavItems = [
@@ -83,15 +87,11 @@ const settingsNavItems = [
                 <div class="space-y-2">
                     <!-- Grupo de navegação: Principal -->
                     <div class="mb-6">
-                        <h2 class="px-2 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Principal
+                        <h2 class="px-2 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Principal
                         </h2>
-
                         <a v-for="(item, index) in mainNavItems" :key="index" :href="item.path" :class="[
                             'flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
-                            currentPath === item.path
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'text-gray-700 hover:bg-gray-100'
+                            isActive(item.path) ? 'bg-emerald-100 text-emerald-700' : 'text-gray-700 hover:bg-gray-100'
                         ]">
                             <span class="mr-3 text-lg">
                                 <component :is="item.icon" class="h-4 w-4"></component>
@@ -102,15 +102,11 @@ const settingsNavItems = [
 
                     <!-- Grupo de navegação: Configurações -->
                     <div class="mb-6">
-                        <h2 class="px-2 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Configurações
+                        <h2 class="px-2 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Configurações
                         </h2>
-
                         <a v-for="(item, index) in settingsNavItems" :key="index" :href="item.path" :class="[
                             'flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
-                            currentPath === item.path
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'text-gray-700 hover:bg-gray-100'
+                            isActive(item.path) ? 'bg-emerald-100 text-emerald-700' : 'text-gray-700 hover:bg-gray-100'
                         ]">
                             <span class="mr-3 text-lg">
                                 <component :is="item.icon" class="h-5 w-5"></component>
@@ -132,9 +128,7 @@ const settingsNavItems = [
                     </div>
                     <div class="ml-3">
                         <p class="text-sm font-medium text-gray-700">{{ userName }}</p>
-                        <button @click="logout" class="text-xs text-gray-500 hover:text-emerald-600">
-                            Sair
-                        </button>
+                        <button class="text-xs text-gray-500 hover:text-emerald-600">Sair</button>
                     </div>
                 </div>
             </div>

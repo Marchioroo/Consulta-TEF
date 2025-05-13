@@ -39,7 +39,7 @@ const formatarData = (data: string) => {
 </script>
 <template>
     <div class="mx-auto mt-10 flex justify-center items-center">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Consulta de Nota Fiscal</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Validador de QWST</h2>
 
     </div>
     <div class="max-w-2xl mx-auto p-6  bg-white rounded-lg shadow-md">

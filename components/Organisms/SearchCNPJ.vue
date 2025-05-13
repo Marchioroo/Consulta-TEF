@@ -7,22 +7,26 @@ const serverStore = useServersStore();
 const cnpj = ref('')
 const servers = ref<ServerType[]>([])
 const companyData = ref<ServerInfo[]>([])
+const toggleInformation = ref(true)
+const serverFind = computed(() => {
+    return serverStore.serverFind
+})
+
 const loading = ref(false)
 const error = ref()
 
-definePageMeta({
-    layout: 'default'  // Aqui você define que esta página vai usar o layout 'default'
-});
 
 onMounted(() => {
     serverStore.FetchListServers();
 })
 servers.value = serverStore.servers
 
+
 // Formata o CNPJ enquanto o usuário digita
 const formatCNPJ = () => {
     // Remove todos os caracteres não numéricos
     let value = cnpj.value.replace(/\D/g, '')
+
 
     // Limita a 14 dígitos
     if (value.length > 14) {
@@ -102,7 +106,7 @@ const searchCNPJ = async () => {
         error.value = 'CNPJ inválido. Verifique o número informado.'
         return
     }
-
+    toggleInformation.value = false
     const cnpjClean = cnpj.value.replace(/\D/g, '')  // Limpeza do CNPJ
 
     loading.value = true
@@ -141,6 +145,7 @@ const searchCNPJ = async () => {
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="mb-6">
                     <label for="cnpj" class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+
                     <div class="flex">
                         <input id="cnpj" v-model="cnpj" type="text" placeholder="XX.XXX.XXX/XXXX-XX"
                             class="flex-1 rounded-l-md border border-gray-300 px-4 py-2 focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none"
@@ -161,8 +166,16 @@ const searchCNPJ = async () => {
                             </span>
                         </button>
                     </div>
+
                     <p v-if="cnpj && !isValidCNPJ" class="mt-1 text-sm text-red-600">
                         CNPJ inválido. Verifique o número informado.
+                    </p>
+                    <p v-else-if="toggleInformation">
+                    <p class="text-sm py-1 text-red-500">É necessário estar conectado na
+                        <strong>VPN</strong> ou estar
+                        na
+                        rede da <strong>LINX</strong>
+                    </p>
                     </p>
                 </div>
 
@@ -200,18 +213,36 @@ const searchCNPJ = async () => {
                             <p class="text-gray-900">{{ companyData[0]?.nomeEmpresa }}</p>
                         </div>
 
-
-
-                        <div>
-                            <h3 class="text-sm font-medium text-gray-500">Servidor</h3>
-                            <p class="text-gray-900">{{ companyData[0]?.nomeServidor }}</p>
-                        </div>
                         <div>
                             <h3 class="text-sm font-medium text-gray-500">Senha</h3>
-                            <p class="text-gray-900">{{ companyData[0]?.senhaConfiguracao }}</p>
+                            <p class="text-gray-900 font-semibold">{{ companyData[0]?.senhaConfiguracao }}</p>
                         </div>
                     </div>
 
+                </div>
+
+                <div v-if="companyData.length > 0"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 border border-gray-200 rounded-lg p-4 bg-emerald-50">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">IP</h3>
+                        <p class="text-gray-900">{{ serverFind.ip }}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Nome </h3>
+                        <p class="text-gray-900">{{ serverFind.nome
+                            || 'Não informado' }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Codigo loja</h3>
+                        <p class="text-gray-900">{{ serverFind.codigo
+                            || 'Não informado' }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Porta</h3>
+                        <p class="text-gray-900">{{ serverFind.porta
+                            || 'Não informado' }}</p>
+                    </div>
 
                 </div>
             </div>

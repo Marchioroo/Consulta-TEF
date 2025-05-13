@@ -7,6 +7,7 @@ export const useServersStore = defineStore("useServersStore", {
   state: () => ({
     servers: [] as ServerType[],
     dataCnpj: [] as ServerInfo[],
+    serverFind: {} as ServerType,
   }),
   actions: {
     async FetchCnpjTef(cnpj: string) {
@@ -25,7 +26,6 @@ export const useServersStore = defineStore("useServersStore", {
         if (data.value) {
           const parsedData = this.parseTableData(String(data.value));
           this.dataCnpj = parsedData;
-          console.log("Dados recebidos:", parsedData);
         }
       } catch (err) {
         console.error("Erro ao fazer requisição:", err);
@@ -35,7 +35,6 @@ export const useServersStore = defineStore("useServersStore", {
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlString, "text/html");
 
-      // Encontre a tabela na resposta
       const table = doc.querySelector("#tabela");
 
       if (!table) {
@@ -44,10 +43,11 @@ export const useServersStore = defineStore("useServersStore", {
       }
 
       const rows = table.querySelectorAll("tr");
-      const result = [];
+      const result = [] as any[];
 
       for (let i = 1; i < rows.length; i++) {
         const cells = rows[i].querySelectorAll("td");
+
         const rowData = {
           nomeServidor: cells[0]?.textContent?.trim() || "",
           nomeEmpresa: cells[1]?.textContent?.trim() || "",
@@ -56,11 +56,35 @@ export const useServersStore = defineStore("useServersStore", {
           codigoLoja: cells[4]?.textContent?.trim() || "",
           senhaConfiguracao: cells[5]?.textContent?.trim() || "",
         };
+        console.log("Row Data:", rowData);
         result.push(rowData);
       }
 
+      const ListServer = this.FetchListServers();
+      if (!ListServer || ListServer.length === 0) {
+        console.error("Lista de servidores não encontrada.");
+        return result;
+      }
+
+      // Buscando o servidor baseado no nome da empresa
+      const server = ListServer.find(
+        (server) => server.nome === result[0]?.nomeServidor?.trim()
+      );
+      this.serverFind = server ? server : ({} as ServerType);
+
+      if (server) {
+        console.log("Servidor encontrado:", server);
+      } else {
+        console.log(
+          "Servidor não encontrado para a empresa:",
+          result[0]?.nomeEmpresa
+        );
+      }
+
+      // Retornando o resultado
       return result;
     },
+
     FetchListServers() {
       this.servers = [
         {
@@ -294,6 +318,118 @@ export const useServersStore = defineStore("useServersStore", {
           nome: "GABRIELA_04",
           identificador: "dtef_gabriela_04",
           codigo: 7830,
+        },
+        {
+          id: "DTEF-DOCKER-014",
+          ip: "172.30.249.242",
+          porta: 355,
+          nome: "LOJAS-10",
+          identificador: "dtef_lojas_10",
+          codigo: 7260,
+        },
+        {
+          id: "DTEF-DOCKER-006",
+          ip: "172.30.249.237",
+          porta: 356,
+          nome: "LOJAS-11",
+          identificador: "dtef_lojas_11",
+          codigo: 7261,
+        },
+        {
+          id: "DTEF-DOCKER-012",
+          ip: "172.30.249.236",
+          porta: 357,
+          nome: "LOJAS-12",
+          identificador: "dtef_lojas_12",
+          codigo: 7262,
+        },
+        {
+          id: "DTEF-DOCKER-012",
+          ip: "172.30.249.236",
+          porta: 365,
+          nome: "LOJAS-18",
+          identificador: "dtef_lojas_18",
+          codigo: 7265,
+        },
+        {
+          id: "DTEF-DOCKER-003",
+          ip: "172.30.249.223",
+          porta: 437,
+          nome: "LOJAS_23",
+          identificador: "dtef_lojas_23",
+          codigo: 7352,
+        },
+        {
+          id: "DTEF-DOCKER-003",
+          ip: "172.30.249.223",
+          porta: 288,
+          nome: "LOJAS_21",
+          identificador: "dtef_lojas_21",
+          codigo: 7701,
+        },
+        {
+          id: "DTEF-DOCKER-005",
+          ip: "172.30.249.226",
+          porta: 302,
+          nome: "LOJAS-22",
+          identificador: "dtef_lojas_22",
+          codigo: 7095,
+        },
+        {
+          id: "DTEF-DOCKER-007",
+          ip: "172.30.249.228",
+          porta: 333,
+          nome: "LOJAS-04",
+          identificador: "dtef_lojas_04",
+          codigo: 7233,
+        },
+        {
+          id: "DTEF-DOCKER-007",
+          ip: "172.30.249.228",
+          porta: 378,
+          nome: "BOBS",
+          identificador: "dtef_bobs",
+          codigo: 7243,
+        },
+        {
+          id: "DTEF-DOCKER-013",
+          ip: "172.30.249.238",
+          porta: 278,
+          nome: "LOJAS-20",
+          identificador: "dtef_lojas_20",
+          codigo: 7183,
+        },
+        {
+          id: "DTEF-DOCKER-013",
+          ip: "172.30.249.238",
+          porta: 311,
+          nome: "LOJAS-13",
+          identificador: "dtef_lojas_13",
+          codigo: 7263,
+        },
+        {
+          id: "DTEF-DOCKER-015",
+          ip: "172.30.249.241",
+          porta: 457,
+          nome: "BOBS-03",
+          identificador: "dtef_bobs_03",
+          codigo: 7827,
+        },
+        {
+          id: "DTEF-DOCKER-014",
+          ip: "172.30.249.242",
+          porta: 379,
+          nome: "BOBS-02",
+          identificador: "dtef_bobs_02",
+          codigo: 7165,
+        },
+        {
+          id: "DTEF-DOCKER-014",
+          ip: "172.30.249.242",
+          porta: 358,
+          nome: "LOJAS-14",
+          identificador: "dtef_lojas_14",
+          codigo: 7264,
         },
         // Adicione os outros servidores da mesma forma
       ];
