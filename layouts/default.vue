@@ -1,11 +1,12 @@
+<!-- layouts/default.vue -->
 <template>
-    <Header />
-    <main>
-        <slot />
-    </main>
-    <OrganismsFooter />
-</template>
+    <div>
+        <!-- Menu Lateral -->
+        <OrganismsMenuLateral />
 
-<script setup>
-import Header from '~/components/Header.vue';
-</script>
+        <!-- Conteúdo principal da página -->
+        <div class="conteudo">
+            <NuxtPage />
+        </div>
+    </div>
+</template>

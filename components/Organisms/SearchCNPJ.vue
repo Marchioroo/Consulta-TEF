@@ -10,6 +10,10 @@ const companyData = ref<ServerInfo[]>([])
 const loading = ref(false)
 const error = ref()
 
+definePageMeta({
+    layout: 'default'  // Aqui você define que esta página vai usar o layout 'default'
+});
+
 onMounted(() => {
     serverStore.FetchListServers();
 })
