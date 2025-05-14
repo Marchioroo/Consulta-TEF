@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { limitNumber, formatDateTime } from '~/composables/Helpers/limitNumber'
 
 definePageMeta({
     layout: 'default'  // Aqui você define que esta página vai usar o layout 'default'
@@ -11,23 +11,71 @@ const serieNota = ref('');
 const dataNota = ref('');
 const numeroLoja = ref('');
 const mostrarResultado = ref(false);
+const isSubmitted = ref(false)
 
 // Valor do QR Code e link de consluta
 const qrCodeValue = computed(() => {
     return `https://consulta.exemplo.com.br/nota?numero=${numeroNota.value}&serie=${serieNota.value}&data=${dataNota.value}&loja=${numeroLoja.value}`;
 });
 
+const isValidate = computed(() => {
+    let errors: { [key: string]: string | null } = {
+        numeroNota: isSubmitted.value && !numeroNota.value.trim() ? 'Número da nota é obrigatório.' : null,
+        serieNota: isSubmitted.value && !serieNota.value.trim() ? 'Série da nota é obrigatória.' : null,
+        numeroLoja: isSubmitted.value && !numeroLoja.value.trim() ? 'Número da loja é obrigatório.' : null
+    }
+
+    // Verifica se todos os campos estão válidos
+    const valid = Object.values(errors).every(error => error === null)
+
+    return {
+        valid,
+        errors
+    }
+})
+
+const dataBody = (NF: string, serieNF: string, Data: string,) => {
+
+
+}
 const linkConsulta = computed(() => {
     return qrCodeValue.value;
 });
 
-// Função para buscar a nota
 const buscarNota = () => {
-    // Simulando uma busca bem-sucedida
-    setTimeout(() => {
-        mostrarResultado.value = true;
-    }, 500);
+    isSubmitted.value = true
+
+    if (isValidate.value.valid) {
+        fetchQWST()
+        setTimeout(() => {
+            mostrarResultado.value = true;
+        }, 500);
+    };
+}
+
+const fetchQWST = async () => {
+    const url = 'http://7pa7e7rotd.execute-api.us-east-1.amazonaws.com/Prod/get_url/';
+
+
+    const formattedDateTime = formatDateTime(new Date(dataNota.value));
+
+    const body = {
+        NF: `${numeroNota.value}_${serieNota.value}`,
+        DEGUST: numeroLoja.value,
+        DT_COMPRA: formattedDateTime
+    };
+
+    const { status, error, data } = await useFetch(url, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    console.log(status.value, data.value, error.value);
 };
+
 
 // Função para formatar a data
 const formatarData = (data: string) => {
@@ -36,6 +84,10 @@ const formatarData = (data: string) => {
     const [ano, mes, dia] = data.split('-');
     return `${dia}/${mes}/${ano}`;
 };
+
+
+
+
 </script>
 <template>
     <div class="mx-auto mt-10 flex justify-center items-center">
@@ -46,26 +98,40 @@ const formatarData = (data: string) => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div class="space-y-2">
                 <label for="numeroNota" class="block text-sm font-medium text-gray-700">Número da Nota</label>
-                <input id="numeroNota" v-model="numeroNota" type="text"
+                <input id="numeroNota" type="text" v-model="numeroNota" inputmode="numeric" pattern="[0-9]*"
+                    maxlength="5" @input="limitNumber('numeroNota')"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: 123456" />
+                <div v-if="isValidate.errors.numeroNota" class="text-sm text-red-500">
+                    {{ isValidate.errors.numeroNota }}
+                </div>
             </div>
+
 
             <div class="space-y-2">
                 <label for="serieNota" class="block text-sm font-medium text-gray-700">Série da Nota</label>
-                <input id="serieNota" v-model="serieNota" type="text"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: 001" />
+                <input id="serieNota" type="text" v-model="serieNota" inputmode="numeric" pattern="[0-9]*" maxlength="3"
+                    @input="limitNumber('serieNota')" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="Ex: 001" />
+                <div v-if="isValidate.errors.serieNota" class="text-sm text-red-500">
+                    {{ isValidate.errors.serieNota }}
+                </div>
             </div>
 
             <div class="space-y-2">
                 <label for="dataNota" class="block text-sm font-medium text-gray-700">Data da Nota</label>
-                <input id="dataNota" v-model="dataNota" type="date"
+                <input id="dataNota" v-model="dataNota" type="datetime-local"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+
             </div>
 
             <div class="space-y-2">
                 <label for="numeroLoja" class="block text-sm font-medium text-gray-700">Número da Loja</label>
-                <input id="numeroLoja" v-model="numeroLoja" type="text"
+                <input id="numeroLoja" v-model="numeroLoja" type="text" maxlength="5" inputmode="numeric"
+                    pattern="[0-9]*" @input="limitNumber(numeroLoja)"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: 0042" />
+                <div v-if="isValidate.errors.numeroLoja" class="text-sm text-red-500">
+                    {{ isValidate.errors.numeroLoja }}
+                </div>
             </div>
         </div>
 

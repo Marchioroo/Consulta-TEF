@@ -21,7 +21,7 @@ export const useServersStore = defineStore("useServersStore", {
           console.error("Erro na requisição:", error.value);
           return;
         }
-
+        console.log(data.value);
         // Verifique se os dados foram recebidos corretamente
         if (data.value) {
           const parsedData = this.parseTableData(String(data.value));
@@ -48,15 +48,17 @@ export const useServersStore = defineStore("useServersStore", {
       for (let i = 1; i < rows.length; i++) {
         const cells = rows[i].querySelectorAll("td");
 
+        const nomeServidorLink = cells[0]?.querySelector("a")?.href || ""; // Pega o link da tag <a>
+
         const rowData = {
           nomeServidor: cells[0]?.textContent?.trim() || "",
+          nomeServidorLink: nomeServidorLink,
           nomeEmpresa: cells[1]?.textContent?.trim() || "",
           codigoEmpresa: cells[2]?.textContent?.trim() || "",
           nomeLoja: cells[3]?.textContent?.trim() || "",
           codigoLoja: cells[4]?.textContent?.trim() || "",
           senhaConfiguracao: cells[5]?.textContent?.trim() || "",
-        };
-        console.log("Row Data:", rowData);
+        } as ServerInfo;
         result.push(rowData);
       }
 
@@ -76,7 +78,7 @@ export const useServersStore = defineStore("useServersStore", {
         console.log("Servidor encontrado:", server);
       } else {
         console.log(
-          "Servidor não encontrado para a empresa:",
+          "Servidor não encontrado para a empresa ou a loja nao usa DTEF:",
           result[0]?.nomeEmpresa
         );
       }

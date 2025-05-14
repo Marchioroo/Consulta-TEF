@@ -9,6 +9,7 @@ export interface ServerType {
 
 export interface ServerInfo {
   nomeServidor: string;
+  nomeServidorLink: string;
   nomeEmpresa: string;
   codigoEmpresa: string;
   nomeLoja: string;

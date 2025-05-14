@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useServersStore } from "~/stores/useServersStore"
 import type { ServerType, ServerInfo } from "~/types/serverInterface";
-
+import { useToast } from 'vue-toast-notification'
 
 const serverStore = useServersStore();
 const cnpj = ref('')
@@ -11,17 +11,19 @@ const toggleInformation = ref(true)
 const serverFind = computed(() => {
     return serverStore.serverFind
 })
-
 const loading = ref(false)
 const error = ref()
-
+const hover = ref(false)
+const toast = useToast()
 
 onMounted(() => {
     serverStore.FetchListServers();
 })
 servers.value = serverStore.servers
 
-
+function onSuccess() {
+    toast.success('Copiado com sucesso!')
+}
 // Formata o CNPJ enquanto o usuário digita
 const formatCNPJ = () => {
     // Remove todos os caracteres não numéricos
@@ -122,7 +124,8 @@ const searchCNPJ = async () => {
         console.log('dataCnpj', dataCnpj)
 
         if (dataCnpj.length > 0) {
-            companyData.value = dataCnpj  // Atribui os dados ao companyData
+            companyData.value = dataCnpj
+            console.log('companyData.value', companyData.value)// Atribui os dados ao companyData
         } else {
             error.value = 'Nenhuma empresa encontrada para esse CNPJ.'
         }
@@ -132,6 +135,21 @@ const searchCNPJ = async () => {
         error.value = 'Erro ao fazer requisição. Tente novamente mais tarde.'
     } finally {
         loading.value = false
+    }
+}
+
+const copyToClipboard = async () => {
+    onSuccess()
+    try {
+        const text = companyData.value[0]?.senhaConfiguracao || ''
+        if (!text) return
+        await navigator.clipboard.writeText(text)
+        // opcional: feedback ao usuário, ex: trocar hover para false e mostrar outro texto
+        hover.value = false
+        // aqui você poderia usar um toast ou mudar o texto para "Copiado!"
+        console.log('Senha copiada:', text)
+    } catch (err) {
+        console.error('Falha ao copiar:', err)
     }
 }
 
@@ -183,8 +201,21 @@ const searchCNPJ = async () => {
                     <p class="text-red-700">{{ error }}</p>
                 </div>
 
-                <div v-if="companyData.length > 0" class="bg-gray-50 border border-gray-200 rounded-md p-4">
+                <div class="w-full flex justify-center items-center mt-6">
+                    <div v-if="companyData.length > 0">
+                        <button
+                            class=" px-4 py-2 bg-gray-500 hover:bg-gray-600 transition-all cursor-pointer rounded-lg">
+                            <NuxtLink :to="companyData[0].nomeServidorLink" target="_blank" rel="noopener noreferrer"
+                                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 transition-all cursor-pointer rounded-lg text-white">
+                                Acesse o portal
+                            </NuxtLink>
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="companyData.length > 0" class="bg-gray-50 border border-gray-200 rounded-md p-4 mt-6">
                     <!-- <h2 class="text-xl font-semibold text-gray-900 mb-4">{{  }}</h2> -->
+
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -213,11 +244,26 @@ const searchCNPJ = async () => {
                             <p class="text-gray-900">{{ companyData[0]?.nomeEmpresa }}</p>
                         </div>
 
-                        <div>
+                        <div @mouseover="hover = true" @mouseleave="hover = false">
                             <h3 class="text-sm font-medium text-gray-500">Senha</h3>
-                            <p class="text-gray-900 font-semibold">{{ companyData[0]?.senhaConfiguracao }}</p>
+                            <span class="flex items-center rounded cursor-pointer" @mouseover="hover = true"
+                                @mouseleave="hover = false" @click="copyToClipboard">
+                                <!-- Senha exibida -->
+                                <p class="text-black font-semibold">
+                                    {{ companyData[0]?.senhaConfiguracao }}
+                                </p>
+
+                                <!-- Texto de instrução, só aparece no hover -->
+                                <p v-if="hover" class="ml-3 text-sm text-gray-400">
+                                    Clique para copiar!
+                                </p>
+                            </span>
+
                         </div>
                     </div>
+
+
+
 
                 </div>
 
@@ -234,12 +280,12 @@ const searchCNPJ = async () => {
                             || 'Não informado' }}</p>
                     </div>
                     <div>
-                        <h3 class="text-sm font-medium text-gray-500">Codigo loja</h3>
+                        <h3 class="text-sm font-medium text-gray-500">Porta</h3>
                         <p class="text-gray-900">{{ serverFind.codigo
                             || 'Não informado' }}</p>
                     </div>
                     <div>
-                        <h3 class="text-sm font-medium text-gray-500">Porta</h3>
+                        <h3 class="text-sm font-medium text-gray-500">Codigo de processo</h3>
                         <p class="text-gray-900">{{ serverFind.porta
                             || 'Não informado' }}</p>
                     </div>
@@ -249,3 +295,7 @@ const searchCNPJ = async () => {
         </div>
     </div>
 </template>
+
+<script scoped>
+
+</script>

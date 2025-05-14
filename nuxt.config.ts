@@ -34,7 +34,6 @@ export default defineNuxtConfig({
     },
   },
 
-  layout: "default",
   modules: ["@nuxt/image", "@nuxt/scripts", "@nuxt/ui", "@nuxt/content"],
 
   compatibilityDate: "2025-05-08",
