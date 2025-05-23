@@ -10,6 +10,7 @@ const numeroNota = ref('');
 const serieNota = ref('');
 const dataNota = ref('');
 const numeroLoja = ref('');
+const formattedDateTime = ref('');
 const mostrarResultado = ref(false);
 const isSubmitted = ref(false)
 
@@ -52,29 +53,38 @@ const buscarNota = () => {
         }, 500);
     };
 }
-
+watch(formattedDateTime, (newData) => {
+    console.log('newData', newData)
+})
 const fetchQWST = async () => {
-    const url = 'http://7pa7e7rotd.execute-api.us-east-1.amazonaws.com/Prod/get_url/';
+    const url = 'https://7pa7e7rotd.execute-api.us-east-1.amazonaws.com/Prod/get_url/';
 
-
-    const formattedDateTime = formatDateTime(new Date(dataNota.value));
+    const formattedDateTimeValue = formatDateTime(new Date(dataNota.value));
+    console.log('formattedDateTime', formattedDateTimeValue);
 
     const body = {
         NF: `${numeroNota.value}_${serieNota.value}`,
         DEGUST: numeroLoja.value,
-        DT_COMPRA: formattedDateTime
+        DT_COMPRA: formattedDateTimeValue
     };
 
-    const { status, error, data } = await useFetch(url, {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': 'VLCsH7wWmk9RwskTCjGde29L1gYR8pHt9f4Tgl6b'
+            },
+            body: JSON.stringify(body)
+        });
 
-    console.log(status.value, data.value, error.value);
+        const result = await response.json();
+        console.log('Success:', result);
+    } catch (err) {
+        console.error('Erro na requisição:', err);
+    }
 };
+
 
 
 // Função para formatar a data
