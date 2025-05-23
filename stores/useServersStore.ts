@@ -11,7 +11,7 @@ export const useServersStore = defineStore("useServersStore", {
   }),
   actions: {
     async FetchCnpjTef(cnpj: string) {
-      const url = `/instalador-tef/instalador-tef/consulta.aspx?q=${cnpj}`;
+      const url = `/instalador-tef/consulta.aspx?q=${cnpj}`;
 
       try {
         const { data, error } = await useFetch(url);
