@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/instalador-tef/instalador-tef/:path*",
-      "destination": "https://operacaodtef.linxsaas.com.br/instalador-tef/instalador-tef/:path*"
+      "source": "/instalador-tef/:path*",
+      "destination": "https://operacaodtef.linxsaas.com.br/instalador-tef/:path*"
     }
   ]
 }
